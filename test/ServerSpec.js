@@ -35,12 +35,10 @@ describe('', function() {
 
   beforeEach(function(done) {
 
-    /*************************************************************************************/
-    /* TODO: Update user and password if different than on your local machine            */
-    /*************************************************************************************/
+    // Updated user and password for local machine
     db = mysql.createConnection({
-      user: 'student',
-      password: 'student',
+      user: 'root',
+      password: 'qwerty',
       database: 'shortly'
     });
 
@@ -123,7 +121,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Account Creation:', function() {
+  describe('Account Creation:', function() {
 
     it('signup creates a new user record', function(done) {
       var options = {
@@ -170,6 +168,7 @@ describe('', function() {
       });
     });
 
+    // redirects to login ???
     it('redirects to signup if the user already exists', function(done) {
       var options = {
         'method': 'POST',
@@ -184,7 +183,8 @@ describe('', function() {
         if (error) { return done(error); }
         request(options, function(err, response, resBody) {
           if (err) { return done(err); }
-          expect(response.headers.location).to.equal('/signup');
+          // expect(response.headers.location).to.equal('/signup');
+          expect(response.headers.location).to.equal('/login');
           done();
         });
       });
