@@ -5,6 +5,7 @@ const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
 const models = require('./models');
+const db = require('./db');
 
 const app = express();
 
@@ -80,25 +81,55 @@ app.post('/links',
 
 // handle POST request for url: /signup
 app.post('/signup', (req, res, next) => {
-  models.Users.create({username: req.body.username, password: req.body.password})
-    .then(results => {
-      res.status(201).send(results);
-    })
-    .catch(err => {
-      res.status(401).send(err);
-    });
+
+  return models.Users.get({
+    'username': req.body.username
+  }).then(results => {
+    if (results) {
+      res.redirect('/signup');
+    } else {
+      models.Users.create({username: req.body.username, password: req.body.password})
+        .then(results => {
+          res.status(201).send(results);
+        })
+        .error(err => {
+          res.status(401).send(err);
+        });
+    }
+  });
+
 });
 
 // handle POST request for url: /login
 app.post('login', (req, res, next) => {
 
-  // get these from the database table:
-  // hashed password
-  // salt
-  // let storedSalt = `SELECT salt FROM users WHERE username = ${req.body.username}`;
+  let storedSaltQuery = `SELECT salt FROM users WHERE username = ${req.body.username}`;
+  let storedHashPassQuery = `SELECT password FROM users WHERE username = ${req.body.username}`;
+
+  // returns a promise ?
+  let storedSalt = models.executeQuery(storedSaltQuery)
+    .then( results => {
+      return results;
+    })
+    .catch( err => {
+      console.log('storedSaltQuery failed');
+      throw err;
+    });
+  let storedHashPass = models.executeQuery(storedHashPassQuery)
+    .then( results => {
+      return results;
+    })
+    .catch( err => {
+      console.log('storedHashPassQuery failed');
+      throw err;
+    });
+
+  if (models.Users.compare(req.body.password), storedHashPass, storedSalt) {
+    // response object
+    // log them into their page
+  }
 
 
-  models.Users.compare(req.body.password);
 });
 
 /************************************************************/

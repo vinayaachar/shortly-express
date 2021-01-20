@@ -183,8 +183,8 @@ describe('', function() {
         if (error) { return done(error); }
         request(options, function(err, response, resBody) {
           if (err) { return done(err); }
-          // expect(response.headers.location).to.equal('/signup');
-          expect(response.headers.location).to.equal('/login');
+          expect(response.headers.location).to.equal('/signup');
+          // expect(response.headers.location).to.equal('/login');
           done();
         });
       });
