@@ -90,7 +90,8 @@ app.post('/signup', (req, res, next) => {
     } else {
       models.Users.create({username: req.body.username, password: req.body.password})
         .then(results => {
-          res.status(201).send(results);
+          //res.status(201).send(results);
+          res.redirect('/');
         })
         .error(err => {
           res.status(401).send(err);
@@ -101,34 +102,25 @@ app.post('/signup', (req, res, next) => {
 });
 
 // handle POST request for url: /login
-app.post('login', (req, res, next) => {
+app.post('/login', (req, res, next) => {
 
-  let storedSaltQuery = `SELECT salt FROM users WHERE username = ${req.body.username}`;
-  let storedHashPassQuery = `SELECT password FROM users WHERE username = ${req.body.username}`;
-
-  // returns a promise ?
-  let storedSalt = models.executeQuery(storedSaltQuery)
-    .then( results => {
-      return results;
+  return models.Users.get({
+    'username': req.body.username
+  })
+    .then(results => {
+      if (results) {
+        if (models.Users.compare(req.body.password, results.password, results.salt)) {
+          res.redirect('/');
+        } else {
+          res.redirect('/login');
+        }
+      } else {
+        res.redirect('/login');
+      }
     })
-    .catch( err => {
-      console.log('storedSaltQuery failed');
-      throw err;
+    .error(err => {
+      res.status(401).send(err);
     });
-  let storedHashPass = models.executeQuery(storedHashPassQuery)
-    .then( results => {
-      return results;
-    })
-    .catch( err => {
-      console.log('storedHashPassQuery failed');
-      throw err;
-    });
-
-  if (models.Users.compare(req.body.password), storedHashPass, storedSalt) {
-    // response object
-    // log them into their page
-  }
-
 
 });
 
