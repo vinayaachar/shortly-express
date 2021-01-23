@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(Auth.createSession);
-app.use(Cookies);
+//app.use(Cookies);
 
 
 
@@ -96,6 +96,10 @@ app.post('/signup', (req, res, next) => {
     } else {
       models.Users.create({'username': submittedUsername, 'password': submittedPassword})
         .then(results => {
+          models.Sessions.update({hash: req.session.hash}, {userId: results.insertId})
+            .then(record => {
+              // update session object
+            });
           //res.status(201).send(results);
           res.redirect('/');
         })
@@ -131,6 +135,14 @@ app.post('/login', (req, res, next) => {
       res.status(401).send(err);
     });
 
+});
+
+app.post('/logout', (req, res, next) => {
+  models.Sessions.delete({ 'hash': req.session.hash })
+    .then((results) =>{
+      console.log('INSIDE OF', results);
+    })
+    .catch();
 });
 
 /************************************************************/
