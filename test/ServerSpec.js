@@ -391,7 +391,6 @@ describe('', function() {
 
         createSession(requestWithoutCookie, response, function() {
           var cookies = response.cookies;
-          // console.log('SPEC', cookies);
           expect(cookies['shortlyid']).to.exist;
           expect(cookies['shortlyid'].value).to.exist;
           done();
@@ -481,7 +480,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions and cookies', function() {
+  describe('Sessions and cookies', function() {
     var requestWithSession;
     var cookieJar;
 
@@ -537,10 +536,13 @@ describe('', function() {
           SELECT users.username FROM users, sessions
           WHERE sessions.hash = ? AND users.id = sessions.userId
         `;
+        console.log('queryString', queryString);
+        console.log('cookieValue', cookieValue);
 
         db.query(queryString, cookieValue, function(error, users) {
           if (error) { return done(error); }
           var user = users[0];
+          console.log('USER', users);
           expect(user.username).to.equal('Vivian');
           done();
         });
